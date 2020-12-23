@@ -34,6 +34,18 @@ int main (void) {
         printf("\r\n");
         delay_ms(8000);
     }
-
 }
 
+
+// NOTE: read_gyro() returns raw gyro values that need to be converted
+/*
+    float convertRawGyro(int gRaw) {
+	// since we are using 250 degrees/seconds range
+	// -250 maps to a raw value of -32768
+	// +250 maps to a raw value of 32767
+
+	float g = (gRaw * 250.0) / 32768.0;
+
+	return g;
+    }
+*/
