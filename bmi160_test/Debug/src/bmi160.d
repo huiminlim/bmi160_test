@@ -20,7 +20,19 @@ src/bmi160.d src/bmi160.o: ../src/bmi160.c ../src/spi.h \
  c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\avr\include\avr\interrupt.h \
  ../src/ASF/mega/utils/progmem.h \
  c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\avr\include\avr\pgmspace.h \
- ../src/ASF/common/services/ioport/mega/ioport.h ../src/bmi160.h
+ ../src/ASF/common/services/ioport/mega/ioport.h ../src/bmi160.h \
+ ../src/uart.h \
+ c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\avr\include\stdio.h \
+ c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\lib\gcc\avr\5.4.0\include\stdarg.h \
+ ../src/ASF/common/services/delay/delay.h \
+ ../src/ASF/common/services/clock/sysclk.h ../src/config/conf_clock.h \
+ ../src/ASF/common/services/clock/mega/sysclk.h \
+ ../src/ASF/common/boards/board.h \
+ ../src/ASF/mega/boards/atmega328p_xplained_mini/atmega328p_xplained_mini.h \
+ ../src/ASF/mega/boards/atmega328p_xplained_mini/led.h \
+ ../src/ASF/common/services/gpio/gpio.h \
+ ../src/ASF/common/services/gpio/mega_gpio/mega_gpio.h \
+ ../src/ASF/common/services/delay/mega/cycle_counter.h
 
 ../src/spi.h:
 
@@ -71,3 +83,29 @@ c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\avr\
 ../src/ASF/common/services/ioport/mega/ioport.h:
 
 ../src/bmi160.h:
+
+../src/uart.h:
+
+c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\avr\include\stdio.h:
+
+c:\program\ files\ (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\lib\gcc\avr\5.4.0\include\stdarg.h:
+
+../src/ASF/common/services/delay/delay.h:
+
+../src/ASF/common/services/clock/sysclk.h:
+
+../src/config/conf_clock.h:
+
+../src/ASF/common/services/clock/mega/sysclk.h:
+
+../src/ASF/common/boards/board.h:
+
+../src/ASF/mega/boards/atmega328p_xplained_mini/atmega328p_xplained_mini.h:
+
+../src/ASF/mega/boards/atmega328p_xplained_mini/led.h:
+
+../src/ASF/common/services/gpio/gpio.h:
+
+../src/ASF/common/services/gpio/mega_gpio/mega_gpio.h:
+
+../src/ASF/common/services/delay/mega/cycle_counter.h:

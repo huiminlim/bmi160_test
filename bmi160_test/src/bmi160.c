@@ -7,13 +7,224 @@
 
 #include <spi.h>
 #include <bmi160.h>
+#include <uart.h>
+#include <delay.h>
+
+
+uint8_t bmi160_init(void) {
+    // Initialization of sensor
+    /* Issue a soft-reset to bring the device into a clean state */
+    reg_write(BMI160_RA_CMD, BMI160_CMD_SOFT_RESET);
+    delay_ms(10);
+
+    /* Issue a dummy-read to force the device into SPI comms mode */
+    reg_read(0x7F);
+    delay_ms(10);
+
+    /* Power up the accelerometer */
+    reg_write(BMI160_RA_CMD, BMI160_CMD_ACC_MODE_NORMAL);
+    delay_ms(10);
+
+
+    /* Wait for power-up to complete */
+    while (0x1 != reg_read_bits(BMI160_RA_PMU_STATUS,
+                                BMI160_ACC_PMU_STATUS_BIT,
+                                BMI160_ACC_PMU_STATUS_LEN)) {
+        delay_ms(10);
+    }
+
+
+    /* Power up the gyroscope */
+    reg_write(BMI160_RA_CMD, BMI160_CMD_GYR_MODE_NORMAL);
+    delay_ms(1);
+
+    /* Wait for power-up to complete */
+    while (0x1 != reg_read_bits(BMI160_RA_PMU_STATUS,
+                                BMI160_GYR_PMU_STATUS_BIT,
+                                BMI160_GYR_PMU_STATUS_LEN)) {
+        delay_ms(10);
+    }
+
+
+    set_full_scale_gyro_range(BMI160_GYRO_RANGE_250);
+    set_full_scale_accel_range(BMI160_ACCEL_RANGE_2G);
+
+    set_gyro_range(250);
+
+
+    /* Only PIN1 interrupts currently supported - map all interrupts to PIN1 */
+    reg_write(BMI160_RA_INT_MAP_0, 0xFF);
+    reg_write(BMI160_RA_INT_MAP_1, 0xF0);
+    reg_write(BMI160_RA_INT_MAP_2, 0x00);
+
+    return reg_read(BMI160_RA_CHIP_ID);
+}
+
+/** Set full-scale gyroscope range.
+    @param range New full-scale gyroscope range value
+    @see getFullScaleGyroRange()
+*/
+void set_full_scale_gyro_range(uint8_t range) {
+    reg_write_bits(BMI160_RA_GYRO_RANGE, range,
+                   BMI160_GYRO_RANGE_SEL_BIT,
+                   BMI160_GYRO_RANGE_SEL_LEN);
+}
+
+/** Set full-scale accelerometer range.
+    @param range New full-scale accelerometer range setting
+    @see getFullScaleAccelRange()
+    @see BMI160AccelRange
+*/
+void set_full_scale_accel_range(uint8_t range) {
+    reg_write_bits(BMI160_RA_ACCEL_RANGE, range,
+                   BMI160_ACCEL_RANGE_SEL_BIT,
+                   BMI160_ACCEL_RANGE_SEL_LEN);
+}
+
+void set_gyro_range(uint16_t range) {
+    uint8_t bmi_range;
+
+    if (range >= 2000) {
+        bmi_range = BMI160_GYRO_RANGE_2000;
+    }
+    else if (range >= 1000) {
+        bmi_range = BMI160_GYRO_RANGE_1000;
+    }
+    else if (range >= 500) {
+        bmi_range = BMI160_GYRO_RANGE_500;
+    }
+    else if (range >= 250) {
+        bmi_range = BMI160_GYRO_RANGE_250;
+    }
+    else {
+        bmi_range = BMI160_GYRO_RANGE_125;
+    }
+
+    set_full_scale_gyro_range(bmi_range);
+}
+
+void read_gyro(int32_t *x, int32_t *y, int32_t *z) {
+    int16_t sx = 0, sy = 0, sz = 0;
+
+    get_rotation(&sx, &sy, &sz);
+
+    *x = (int32_t) sx;
+    *y = (int32_t) sy;
+    *z = (int32_t) sz;
+}
+
+/** Get 3-axis gyroscope readings.
+    These gyroscope measurement registers, along with the accelerometer
+    measurement registers, temperature measurement registers, and external sensor
+    data registers, are composed of two sets of registers: an internal register
+    set and a user-facing read register set.
+    The data within the gyroscope sensors' internal register set is always
+    updated at the Output Data Rate. Meanwhile, the user-facing read register set
+    duplicates the internal register set's data values whenever the serial
+    interface is idle. This guarantees that a burst read of sensor registers will
+    read measurements from the same sampling instant. Note that if burst reads
+    are not used, the user is responsible for ensuring a set of single byte reads
+    correspond to a single sampling instant by checking the Data Ready interrupt.
+
+    Each 16-bit gyroscope measurement has a full scale configured by
+    @setFullScaleGyroRange(). For each full scale setting, the gyroscopes'
+    sensitivity per LSB is shown in the table below:
+
+    <pre>
+    Full Scale Range   | LSB Sensitivity
+    -------------------+----------------
+    +/- 125  degrees/s | 262.4 LSB/deg/s
+    +/- 250  degrees/s | 131.2 LSB/deg/s
+    +/- 500  degrees/s | 65.5  LSB/deg/s
+    +/- 1000 degrees/s | 32.8  LSB/deg/s
+    +/- 2000 degrees/s | 16.4  LSB/deg/s
+    </pre>
+
+    @param x 16-bit signed integer container for X-axis rotation
+    @param y 16-bit signed integer container for Y-axis rotation
+    @param z 16-bit signed integer container for Z-axis rotation
+    @see getMotion6()
+    @see BMI160_RA_GYRO_X_L
+*/
+void get_rotation(int16_t *x, int16_t *y, int16_t *z) {
+    //uint8_t buffer[6];
+    //buffer[0] = BMI160_RA_GYRO_X_L;
+    //serial_buffer_transfer(buffer, 1, 6);
+    //*x = (((int16_t)buffer[1]) << 8) | buffer[0];
+    //*y = (((int16_t)buffer[3]) << 8) | buffer[2];
+    //*z = (((int16_t)buffer[5]) << 8) | buffer[4];
+
+    uint8_t buffer[6];
+
+    // Send address to read from and read first byte
+    buffer[0] = read8(BMI160_RA_GYRO_X_L);
+
+    printf("Byte 1: %d\r\n", buffer[0]);
+
+    // Read remaining 5 bytes
+    for (int i = 1; i < 6; i++) {
+        buffer[i] = spixfer(0);
+        printf("Byte %d: %d\r\n", i, buffer[i]);
+    }
+
+    *x = (((int16_t)buffer[1]) << 8) | buffer[0];
+    *y = (((int16_t)buffer[3]) << 8) | buffer[2];
+    *z = (((int16_t)buffer[5]) << 8) | buffer[4];
+}
+
+/*!
+     @brief  Reads from a given register address
+	 Wrapper function to read register from sensor, uses read8() function
+*/
+uint8_t reg_read (uint8_t reg) {
+    uint8_t ret = read8(reg);
+    return ret;
+}
+
+
+/*!
+     @brief  Writes to a given register address
+	 Wrapper function to write to register from sensor, uses write8() function
+*/
+void reg_write(uint8_t reg, uint8_t data) {
+    //uint8_t buffer[2];
+    //buffer[0] = reg;
+    //buffer[1] = data;
+    //serial_buffer_transfer(buffer, 2, 0);
+    write8(reg, data);
+}
+
+/*!
+     @brief  Writes to a given register address specific bits at some position
+	 Wrapper function to write to register from sensor, uses reg_write()/write8() function
+*/
+void reg_write_bits(uint8_t reg, uint8_t data, uint8_t pos, uint8_t len) {
+    uint8_t b = reg_read(reg);
+    uint8_t mask = ((1 << len) - 1) << pos;
+    data <<= pos;									// shift data into correct position
+    data &= mask;									// zero all non-important bits in data
+    b &= ~(mask);									// zero all important bits in existing byte
+    b |= data;										// combine data with existing byte
+    reg_write(reg, b);
+}
+
+/*!
+     @brief  Read a given register address specific bits at some position
+	 Wrapper function to read register from sensor, uses reg_read()/read8() function
+*/
+uint8_t reg_read_bits(uint8_t reg, uint8_t pos, uint8_t len) {
+    uint8_t b = reg_read(reg);
+    uint8_t mask = (1 << len) - 1;
+    b >>= pos;
+    b &= mask;
+    return b;
+}
 
 /*
     This function reads 8 bits from sensor
     With a given reg
 */
 uint8_t read8(uint8_t reg) {
-    //spi_begin_txn(500000, MSBFIRST, SPI_MODE0);
     // SS set to low - select slave
     ioport_set_pin_low(SPI_HARDWARE_SS);
 
@@ -23,7 +234,6 @@ uint8_t read8(uint8_t reg) {
 
     // SS set to high - de-select slave
     ioport_set_pin_high(SPI_HARDWARE_SS);
-    //spi_end_txn();
 
     return value;
 }
@@ -34,18 +244,15 @@ uint8_t read8(uint8_t reg) {
     With a given reg
 */
 void write8 (uint8_t reg, uint8_t value) {
-    //spi_begin_txn(500000, MSBFIRST, SPI_MODE0);
-
     // SS set to low - select slave
     ioport_set_pin_low(SPI_HARDWARE_SS);
 
     // read, bit 7 set to 0
-    spixfer(reg & ~0x80);
+    spixfer(reg);
     spixfer(value);
 
     // SS set to high - de-select slave
     ioport_set_pin_high(SPI_HARDWARE_SS);
-    //spi_end_txn();
 }
 
 
