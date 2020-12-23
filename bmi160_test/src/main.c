@@ -15,11 +15,11 @@ int main (void) {
     uint8_t sensorID = reg_read(BMI160_RA_CHIP_ID);
     printf("Sensor id: 0x%x\r\n\r\n", sensorID);
 
-    //sensorID = bmi160_init();
+    sensorID = bmi160_init();
     //printf("Read 2 - Sensor id: 0x%x\r\n\r\n", sensorID);
 
-    int16_t gxRaw, gyRaw, gzRaw;         // raw gyro values
-    int16_t axRaw, ayRaw, azRaw;         // raw gyro values
+    int16_t gxRaw, gyRaw, gzRaw;			// raw gyro values
+    //int16_t axRaw, ayRaw, azRaw;         // raw gyro values
 
     while (1) {
         //uint8_t sensorID = reg_read(BMI160_RA_CHIP_ID);
@@ -32,7 +32,7 @@ int main (void) {
         printf("gx: %d\r\n", gzRaw);
 
         printf("\r\n");
-        delay_ms(8000);
+        delay_ms(1000);
     }
 }
 
