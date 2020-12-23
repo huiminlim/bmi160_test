@@ -103,7 +103,7 @@ void set_gyro_range(uint16_t range) {
     set_full_scale_gyro_range(bmi_range);
 }
 
-void read_gyro(int32_t *x, int32_t *y, int32_t *z) {
+void read_gyro(int16_t *x, int16_t *y, int16_t *z) {
     int16_t sx = 0, sy = 0, sz = 0;
 
     get_rotation(&sx, &sy, &sz);
@@ -147,25 +147,26 @@ void read_gyro(int32_t *x, int32_t *y, int32_t *z) {
     @see BMI160_RA_GYRO_X_L
 */
 void get_rotation(int16_t *x, int16_t *y, int16_t *z) {
-    //uint8_t buffer[6];
-    //buffer[0] = BMI160_RA_GYRO_X_L;
-    //serial_buffer_transfer(buffer, 1, 6);
-    //*x = (((int16_t)buffer[1]) << 8) | buffer[0];
-    //*y = (((int16_t)buffer[3]) << 8) | buffer[2];
-    //*z = (((int16_t)buffer[5]) << 8) | buffer[4];
-
     uint8_t buffer[6];
 
     // Send address to read from and read first byte
     buffer[0] = read8(BMI160_RA_GYRO_X_L);
+    //printf("Byte 1: %d\r\n", buffer[0]);
 
-    printf("Byte 1: %d\r\n", buffer[0]);
+    buffer[1] = read8(BMI160_RA_GYRO_X_H);
+    //printf("Byte 2: %d\r\n", buffer[1]);
 
-    // Read remaining 5 bytes
-    for (int i = 1; i < 6; i++) {
-        buffer[i] = spixfer(0);
-        printf("Byte %d: %d\r\n", i, buffer[i]);
-    }
+    buffer[2] = read8(BMI160_RA_GYRO_Y_L);
+    //printf("Byte 3: %d\r\n", buffer[2]);
+
+    buffer[3] = read8(BMI160_RA_GYRO_Y_H);
+    //printf("Byte 4: %d\r\n", buffer[3]);
+
+    buffer[4] = read8(BMI160_RA_GYRO_Z_L);
+    //printf("Byte 5: %d\r\n", buffer[4]);
+
+    buffer[5] = read8(BMI160_RA_GYRO_Z_H);
+    //printf("Byte 6: %d\r\n", buffer[5]);
 
     *x = (((int16_t)buffer[1]) << 8) | buffer[0];
     *y = (((int16_t)buffer[3]) << 8) | buffer[2];

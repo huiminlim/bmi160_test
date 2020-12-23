@@ -296,7 +296,7 @@ uint8_t bmi160_init(void);
 void set_gyro_range(uint16_t range) ;
 void set_full_scale_gyro_range(uint8_t range) ;
 void set_full_scale_accel_range(uint8_t range);
-void read_gyro(int32_t *x, int32_t *y, int32_t *z) ;
+void read_gyro(int16_t *x, int16_t *y, int16_t *z) ;
 void get_rotation(int16_t *x, int16_t *y, int16_t *z);
 uint8_t reg_read (uint8_t reg);
 void reg_write(uint8_t reg, uint8_t data);
