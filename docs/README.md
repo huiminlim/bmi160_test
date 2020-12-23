@@ -32,11 +32,7 @@ They include:
 
 ## Expected Output
 
-Currently, only the temperature reading can be obtained as the FYP only requires the temperature reading.
-
-To ensure that the temperature sensor reads the correct temperature value, ensure that the correct sampling settings are configured.
-
-As of now, the code does not support setting the sampling setting, so run the Arduino IDE sketch to configure the sampling settings before flashing this code in the microcontroller to read from the sensor.
+Currently, only the gyroscope reading can be obtained as the FYP only requires the gyroscope reading.
 
 The output should look like this:
 
