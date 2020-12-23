@@ -22,8 +22,8 @@ int main (void) {
     int16_t gxRaw, gyRaw, gzRaw;         // raw gyro values
 
     while (1) {
-        uint8_t sensorID = reg_read(BMI160_RA_CHIP_ID);
-        printf("Sensor id: 0x%x\r\n", sensorID);
+        //uint8_t sensorID = reg_read(BMI160_RA_CHIP_ID);
+        //printf("Sensor id: 0x%x\r\n", sensorID);
 
         read_gyro(&gxRaw, &gyRaw, &gzRaw);
 
