@@ -118,9 +118,9 @@ void read_gyro(int16_t *x, int16_t *y, int16_t *z) {
 
     get_rotation(&sx, &sy, &sz);
 
-    *x = (int32_t) sx;
-    *y = (int32_t) sy;
-    *z = (int32_t) sz;
+    *x = (int16_t) sx;
+    *y = (int16_t) sy;
+    *z = (int16_t) sz;
 }
 
 /** Get 3-axis gyroscope readings.
@@ -177,6 +177,80 @@ void get_rotation(int16_t *x, int16_t *y, int16_t *z) {
 
     buffer[5] = read8(BMI160_RA_GYRO_Z_H);
     //printf("Byte 6: %d\r\n", buffer[5]);
+
+    *x = (((int16_t)buffer[1]) << 8) | buffer[0];
+    *y = (((int16_t)buffer[3]) << 8) | buffer[2];
+    *z = (((int16_t)buffer[5]) << 8) | buffer[4];
+}
+
+
+void read_accelerometer(int16_t *x, int16_t *y, int16_t *z) {
+    int16_t sx, sy, sz;
+
+    get_acceleration(&sx, &sy, &sz);
+
+    *x = (int16_t) sx;
+    *y = (int16_t) sy;
+    *z = (int16_t) sz;
+}
+
+/** Get 3-axis accelerometer readings.
+    These registers store the most recent accelerometer measurements.
+    Accelerometer measurements are written to these registers at the Output Data Rate
+    as configured by @see getAccelRate()
+
+    The accelerometer measurement registers, along with the temperature
+    measurement registers, gyroscope measurement registers, and external sensor
+    data registers, are composed of two sets of registers: an internal register
+    set and a user-facing read register set.
+
+    The data within the accelerometer sensors' internal register set is always
+    updated at the Output Data Rate. Meanwhile, the user-facing read register set
+    duplicates the internal register set's data values whenever the serial
+    interface is idle. This guarantees that a burst read of sensor registers will
+    read measurements from the same sampling instant. Note that if burst reads
+    are not used, the user is responsible for ensuring a set of single byte reads
+    correspond to a single sampling instant by checking the Data Ready interrupt.
+
+    Each 16-bit accelerometer measurement has a full scale configured by
+    @setFullScaleAccelRange. For each full scale setting, the accelerometers'
+    sensitivity per LSB is shown in the table below:
+
+    <pre>
+    Full Scale Range | LSB Sensitivity
+    -----------------+----------------
+    +/- 2g           | 8192 LSB/mg
+    +/- 4g           | 4096 LSB/mg
+    +/- 8g           | 2048 LSB/mg
+    +/- 16g          | 1024 LSB/mg
+    </pre>
+
+    @param x 16-bit signed integer container for X-axis acceleration
+    @param y 16-bit signed integer container for Y-axis acceleration
+    @param z 16-bit signed integer container for Z-axis acceleration
+    @see BMI160_RA_ACCEL_X_L
+*/
+void get_acceleration(int16_t *x, int16_t *y, int16_t *z) {
+    uint8_t buffer[6];
+
+    // Send address to read from and read first byte
+    buffer[0] = read8(BMI160_RA_ACCEL_X_L);
+    printf("Byte 1: %d\r\n", buffer[0]);
+
+    buffer[1] = read8(BMI160_RA_ACCEL_X_H);
+    printf("Byte 2: %d\r\n", buffer[1]);
+
+    buffer[2] = read8(BMI160_RA_ACCEL_Y_L);
+    printf("Byte 3: %d\r\n", buffer[2]);
+
+    buffer[3] = read8(BMI160_RA_ACCEL_Y_H);
+    printf("Byte 4: %d\r\n", buffer[3]);
+
+    buffer[4] = read8(BMI160_RA_ACCEL_Z_L);
+    printf("Byte 5: %d\r\n", buffer[4]);
+
+    buffer[5] = read8(BMI160_RA_ACCEL_Z_H);
+    printf("Byte 6: %d\r\n", buffer[5]);
 
     *x = (((int16_t)buffer[1]) << 8) | buffer[0];
     *y = (((int16_t)buffer[3]) << 8) | buffer[2];

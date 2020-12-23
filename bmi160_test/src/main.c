@@ -1,5 +1,4 @@
 #include <asf.h>
-#include <stdlib.h>
 #include <spi.h>
 #include <uart.h>
 #include <bmi160.h>
@@ -20,6 +19,7 @@ int main (void) {
     //printf("Read 2 - Sensor id: 0x%x\r\n\r\n", sensorID);
 
     int16_t gxRaw, gyRaw, gzRaw;         // raw gyro values
+    int16_t axRaw, ayRaw, azRaw;         // raw gyro values
 
     while (1) {
         //uint8_t sensorID = reg_read(BMI160_RA_CHIP_ID);
@@ -48,4 +48,10 @@ int main (void) {
 
 	return g;
     }
+
+	        read_accelerometer(&axRaw, &ayRaw, &azRaw);
+
+	        printf("ax: %d ", axRaw);
+	        printf("ay: %d ", ayRaw);
+	        printf("ax: %d\r\n", azRaw);
 */
