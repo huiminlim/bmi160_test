@@ -10,7 +10,9 @@
 #include <uart.h>
 #include <delay.h>
 
-
+/** Initializes the sensor
+	@returns BMI160 sensor ID to verify if connection is successful
+*/
 uint8_t bmi160_init(void) {
     // Initialization of sensor
     /* Issue a soft-reset to bring the device into a clean state */
@@ -81,6 +83,9 @@ void set_full_scale_accel_range(uint8_t range) {
                    BMI160_ACCEL_RANGE_SEL_LEN);
 }
 
+/** Sets the gyroscope range of the BMI160
+	@see getFullScaleAccelRange()
+*/
 void set_gyro_range(uint16_t range) {
     uint8_t bmi_range;
 
@@ -103,6 +108,11 @@ void set_gyro_range(uint16_t range) {
     set_full_scale_gyro_range(bmi_range);
 }
 
+/** Read the gyroscope value
+	@param x pointer reference value of memory location to store x gyroscope value
+	@param y pointer reference value of memory location to store y gyroscope value
+	@param z pointer reference value of memory location to store z gyroscope value
+*/
 void read_gyro(int16_t *x, int16_t *y, int16_t *z) {
     int16_t sx = 0, sy = 0, sz = 0;
 
@@ -181,7 +191,6 @@ uint8_t reg_read (uint8_t reg) {
     uint8_t ret = read8(reg);
     return ret;
 }
-
 
 /*!
      @brief  Writes to a given register address
